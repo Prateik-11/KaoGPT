@@ -10,20 +10,20 @@ DATA_PATH = r".\data\kao_first_13.txt"
 TRAIN_TEST_SPLIT_RATIO = 0.95 
 BATCH_SIZE = 64
 SEQ_LENGTH = 256
-EMB_DIM = 64
+EMB_DIM = 384
 OUTPUT_LENGTH = 100
 SEED = 11
 PROMPT = "Welcome to class"
 LEARNING_RATE = 3e-4
-NUM_ITERATIONS = 50000 #80,000
+NUM_ITERATIONS = 1500
 WEIGHT_DECAY = 0.01
-N_DECODER_LAYERS = 6
+N_DECODER_LAYERS = 8
 N_HEADS = 6
 ATTN_DIM = EMB_DIM // N_HEADS
 DROPOUT = 0.2
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else 'cpu')
-CONTINUE_FROM = r'.\checkpoints\2023-03-09_23_02_05_858274.pt'
-SAVE_IN = r'.\checkpoints'
+CONTINUE_FROM = r'.\checkpoints2\2023-03-10_01_31_01_887551.pt'
+SAVE_IN = r'.\checkpoints2'
 
 def generate(inp):
     PROMPT = inp
@@ -38,7 +38,9 @@ def generate(inp):
         stack_size = N_DECODER_LAYERS,
         n_heads = N_HEADS,
         attn_dim = ATTN_DIM,
-        dropout_rate= DROPOUT)
+        dropout_rate= DROPOUT,
+        device= device
+        )
     
     model.to(device)
     
@@ -69,7 +71,9 @@ def main():
         stack_size = N_DECODER_LAYERS,
         n_heads = N_HEADS,
         attn_dim = ATTN_DIM,
-        dropout_rate= DROPOUT)
+        dropout_rate= DROPOUT,
+        device= device
+        )
     
     if CONTINUE_FROM is not None:
         model.load_state_dict(torch.load(CONTINUE_FROM))

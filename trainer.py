@@ -11,9 +11,9 @@ class Trainer:
     def train(self, train_loader, model, num_itr, loss_ctr, optim, SAVE_IN):
         model.train()
         model.to(self.device)
-        print_every = 250
-        save_every = 1000
-        for i in range(num_itr):
+        print_every = 10000
+        save_every = 2000
+        for i in range(1, num_itr+1):
             inputs, targets = train_loader.get_batch() # batch_size x seq_length+1
             inputs  = inputs.to(self.device)
             targets  = targets.to(self.device)

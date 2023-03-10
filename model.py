@@ -49,7 +49,8 @@ class Decoder_Stack(nn.Module):
             next_id = torch.multinomial(probs, 1) # Sampling
             
             output = torch.cat([output, next_id], -1)
-            prompt = output[-self.seq_len:]
+            prompt = output[:, -self.seq_len:]
+            # prompt = output[-self.seq_len:]
         return tokenizer.decode_batch(output)[0]
 
 class Decoder(nn.Module):

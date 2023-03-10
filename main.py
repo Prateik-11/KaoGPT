@@ -11,18 +11,18 @@ TRAIN_TEST_SPLIT_RATIO = 0.95
 BATCH_SIZE = 64
 SEQ_LENGTH = 256
 EMB_DIM = 384
-OUTPUT_LENGTH = 100
+OUTPUT_LENGTH = 500
 SEED = 11
 PROMPT = "Welcome to class"
 LEARNING_RATE = 3e-4
-NUM_ITERATIONS = 1500
+NUM_ITERATIONS = 100000 # 70,000
 WEIGHT_DECAY = 0.01
 N_DECODER_LAYERS = 8
 N_HEADS = 6
 ATTN_DIM = EMB_DIM // N_HEADS
 DROPOUT = 0.2
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else 'cpu')
-CONTINUE_FROM = r'.\checkpoints2\2023-03-10_01_31_01_887551.pt'
+CONTINUE_FROM = r'.\checkpoints2\2023-03-10_08_54_48_872033.pt'
 SAVE_IN = r'.\checkpoints2'
 
 def generate(inp):

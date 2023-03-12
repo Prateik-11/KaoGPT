@@ -6,7 +6,7 @@ import datetime
 import torch
 import re
 
-DATA_PATH = r".\data\kao_first_13.txt"
+DATA_PATH = r".\data\kaorpus.txt"
 TRAIN_TEST_SPLIT_RATIO = 0.95 
 BATCH_SIZE = 64
 SEQ_LENGTH = 256
@@ -21,9 +21,12 @@ N_DECODER_LAYERS = 8
 N_HEADS = 6
 ATTN_DIM = EMB_DIM // N_HEADS
 DROPOUT = 0.2
+PRINT_EVERY = 500
+SAVE_EVERY = 1000
+VALIDATE_EVERY = 1000
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else 'cpu')
-CONTINUE_FROM = r'.\checkpoints2\2023-03-10_08_54_48_872033.pt'
-SAVE_IN = r'.\checkpoints2'
+CONTINUE_FROM = r'.\checkpoints3\day_2.pt' # Specify File
+SAVE_IN = r'.\checkpoints3' # Specify Directory
 
 def generate(inp):
     PROMPT = inp
@@ -63,6 +66,10 @@ def main():
                             BATCH_SIZE, 
                             SEQ_LENGTH
                             )
+    val_loader = TextLoader(val_data,
+                            BATCH_SIZE, 
+                            SEQ_LENGTH
+                            )
 
     model = Decoder_Stack(
         vocab_size = len(tokenizer),
@@ -84,7 +91,17 @@ def main():
                             LEARNING_RATE,
                             weight_decay=WEIGHT_DECAY
                             )
-    trainer.train(train_loader, model, NUM_ITERATIONS , loss, optim, SAVE_IN)
+    trainer.train(train_loader, 
+                val_loader, 
+                model, 
+                NUM_ITERATIONS, 
+                loss, 
+                optim, 
+                SAVE_IN,
+                PRINT_EVERY,
+                SAVE_EVERY,
+                VALIDATE_EVERY
+                )
     
     if SAVE_IN is not None:
         now = re.sub(r'[ .:]', '_', str(datetime.datetime.now()))

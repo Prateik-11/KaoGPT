@@ -7,7 +7,6 @@ class Tokenizer:
         self.vocab = self.char()
         self.char2id = dict(zip(self.vocab, range(len(self.vocab))))
         self.id2char = dict(zip(range(len(self.vocab)), self.vocab))
-        pass
     
     def __len__(self):
         return len(self.vocab)

@@ -85,7 +85,7 @@ class MultiHeaded_Attention(nn.Module):
         x = self.downsize(x)
         x = self.dropout(x)
         return x 
-      
+
 class Attention_Head(nn.Module):
     def __init__(self, attn_dim, seq_len, emb_dim, dropout_rate):
         super().__init__()

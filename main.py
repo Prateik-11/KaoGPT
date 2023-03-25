@@ -2,7 +2,9 @@ from tokenization import Tokenizer
 from dataloader import TextLoader
 from model import Decoder_Stack
 from trainer import Trainer
+from rouge_score import rouge_scorer
 import datetime
+import numpy as np
 import torch
 import re
 
@@ -28,7 +30,41 @@ DEVICE = torch.device("cuda" if torch.cuda.is_available() else 'cpu')
 CONTINUE_FROM = r'.\checkpoints3\day_2.pt' # Specify File
 SAVE_IN = r'.\checkpoints3' # Specify Directory
 
-def generate(inp):
+def get_size(module):
+    size = 0
+    for param in module.parameters():
+        size += np.prod(param.shape)
+    return size
+
+
+def test():
+    torch.manual_seed(SEED)
+    device = DEVICE
+    tokenizer = Tokenizer(DATA_PATH)
+    data = tokenizer.encode(tokenizer.text)
+    
+    cutoff = int(len(data)*TRAIN_TEST_SPLIT_RATIO)
+    train_data, val_data = data[:cutoff], data[cutoff:]
+    SEQ_LENGTH = 500
+    train_loader = TextLoader(train_data,
+                            BATCH_SIZE, 
+                            SEQ_LENGTH
+                            )
+    random_sample, _ = train_loader.get_batch()
+    random_sample = tokenizer.decode_batch(random_sample)[0]
+
+    print("Random text sampled from data:")
+    print(random_sample)
+    first_half = random_sample[:256]
+    print()
+    out_len = 244
+    print("Text half completed by KaoGPT:")
+    model_out = generate(first_half, out_len)
+    scorer = rouge_scorer.RougeScorer(['rouge3'], use_stemmer=True)
+    scores = scorer.score(random_sample, model_out)
+    print(scores)
+
+def generate(inp, out_len = None):
     PROMPT = inp
     torch.manual_seed(SEED)
     device = DEVICE
@@ -46,13 +82,18 @@ def generate(inp):
         )
     
     model.to(device)
+    print(f"Number of parameters: {get_size(model)}")
     
     if CONTINUE_FROM is not None:
         model.load_state_dict(torch.load(CONTINUE_FROM))
     else:
         print('WARNING: NO MODEL LOADED')
     
-    print(model.generate(PROMPT, OUTPUT_LENGTH, tokenizer, device))
+    # if out_len is not None:
+    #     OUTPUT_LENGTH = out_len
+    output =  model.generate(PROMPT, OUTPUT_LENGTH, tokenizer, device)
+    print(output)
+    return output
 
 def main():
     torch.manual_seed(SEED)
@@ -81,6 +122,8 @@ def main():
         dropout_rate= DROPOUT,
         device= device
         )
+    
+
     
     if CONTINUE_FROM is not None:
         model.load_state_dict(torch.load(CONTINUE_FROM))
@@ -114,6 +157,8 @@ if __name__ == "__main__":
     inp = input("Enter prompt | -1 to train\n")
     if inp == "-1":
         main()
+    elif inp == "-2":
+        test()
     else:
         generate(inp)
 
